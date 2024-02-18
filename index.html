@@ -26,7 +26,7 @@
       #sun,
       #mercury,
       #venus,
-      #earth,
+      #us,
       #mars,
       #jupiter,
       #saturn,
@@ -63,7 +63,10 @@
           <span id="sun">&#9728;&#65039;</span>
           <span id="mercury" data-tooltip="Mercury">&#9791;</span>
           <span id="venus" data-tooltip="Venus">&#9792;</span>
-          <span id="earth"> <span id="moon">&#127764;</span>&#127757;</span>
+          <span id="us">
+            <span id="earth">&#127757;</span>
+            <span id="moon">&#127764;</span>
+          </span>
           <span id="mars" data-tooltip="Mars">&#9794;</span>
           <span id="jupiter" data-tooltip="Jupiter">&#9795;</span>
           <span id="saturn" data-tooltip="Saturn">&#9796;</span>
@@ -100,13 +103,14 @@
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         tick();
-        setInterval(tick, 10);
+        setInterval(tick, 100);
       });
 
       const solarSystemChart = document.getElementById('solarSystemChart');
       const sun = document.getElementById('sun');
       const mercury = document.getElementById('mercury');
       const venus = document.getElementById('venus');
+      const us = document.getElementById('us');
       const earth = document.getElementById('earth');
       const moon = document.getElementById('moon');
       const mars = document.getElementById('mars');
@@ -119,15 +123,19 @@
       const beatTime = document.getElementById('beatTime');
       const beatTimeTimeline = document.getElementById('beatTimeTimeline');
 
+      let date = new Date();
+
       function tick() {
-        let date = new Date();
+        date = new Date();
+
+        // console.log(date);
 
         // solar system
         let daysSinceEpoch = (date.getTime() - Date.parse('1970-01-01')) / 86400000; // 1000 * 60 * 60 * 24
         const planets = {
           mercury: { period: 88, startAngle: 17.67, distance: 50 },
           venus: { period: 224.7, startAngle: 354.74, distance: 75 },
-          earth: { period: 365.25, startAngle: 0, distance: 100 },
+          us: { period: 365.25, startAngle: 0, distance: 100 },
           mars: { period: 687, startAngle: 61.5, distance: 125 },
           jupiter: { period: 4333, startAngle: 290.63, distance: 150 },
           saturn: { period: 10759, startAngle: 110.56, distance: 175 },
@@ -143,6 +151,19 @@
             planetElement.style.transform = 'translate(-50%, -50%) rotate(' + currentAngle + 'deg) translateX(' + data.distance + 'px) rotate(-' + currentAngle + 'deg)';
           }
         });
+        switch (true) {
+          case date.getUTCHours() < 6:
+            earth.innerHTML = '&#127759;'; // Asia/Australia
+            break;
+          case date.getUTCHours() < 14:
+            earth.innerHTML = '&#127757;'; // Europe/Africa
+            break;
+          case date.getUTCHours() < 22:
+            earth.innerHTML = '&#127758;'; // Americas
+            break;
+          default:
+            earth.innerHTML = '&#127759;';
+        }
 
         // moon
         const moonPeriod = 29.5305;
