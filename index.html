@@ -120,14 +120,6 @@
       function tick() {
         let date = new Date();
 
-        let timeformat = {
-          hour: 'numeric',
-          minute: 'numeric',
-          second: 'numeric',
-          timeZoneName: 'short',
-        };
-        yourTime.innerHTML = date.toLocaleTimeString('en-US', timeformat);
-
         // solar system
         let daysSinceEpoch = (date.getTime() - Date.parse('1970-01-01')) / 86400000; // 1000 * 60 * 60 * 24
         const planets = {
@@ -188,6 +180,15 @@
         const moonOrbitRadius = 30;
         const moonPhaseAngle = (currentPhase / moonPeriod) * 360;
         moon.style.transform = 'rotate(' + moonPhaseAngle + 'deg) translate(' + moonOrbitRadius + 'px)';
+
+        // local time
+        let timeformat = {
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          timeZoneName: 'short',
+        };
+        yourTime.innerHTML = date.toLocaleTimeString('en-US', timeformat);
 
         // intl utc time
         timeformat['timeZone'] = 'UTC';
