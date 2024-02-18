@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <style>
+      article {
+        max-width: 50vw;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      article > p {
+        text-align: center;
+      }
+      #solarSystemChart {
+        width: 500px;
+        height: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid white;
+        border-radius: 50%;
+        position: relative;
+      }
+      #sun,
+      #mercury,
+      #venus,
+      #earth,
+      #mars,
+      #jupiter,
+      #saturn,
+      #uranus,
+      #neptune {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-bottom: 0;
+      }
+      #sun {
+        font-size: 3rem;
+      }
+      #moon {
+        font-size: 0.6rem;
+        position: absolute;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="container">
+      <hgroup>
+        <h1>By My Watch</h1>
+        <h2>The ways that humans represent time.</h2>
+      </hgroup>
+    </header>
+
+    <main class="container">
+      <article id="solarSystem">
+        <figure id="solarSystemChart">
+          <span id="sun">&#9728;&#65039;</span>
+          <span id="mercury" data-tooltip="Mercury">&#9791;</span>
+          <span id="venus" data-tooltip="Venus">&#9792;</span>
+          <span id="earth"> <span id="moon">&#127764;</span>&#127757;</span>
+          <span id="mars" data-tooltip="Mars">&#9794;</span>
+          <span id="jupiter" data-tooltip="Jupiter">&#9795;</span>
+          <span id="saturn" data-tooltip="Saturn">&#9796;</span>
+          <span id="uranus" data-tooltip="Uranus">&#9797;</span>
+          <span id="neptune" data-tooltip="Neptune">&#9798;</span>
+        </figure>
+      </article>
+
+      <article id="your">
+        <header>Your Local Time</header>
+        <p id="yourTime"></p>
+      </article>
+
+      <article id="utc">
+        <header>Universal Coordinated Time (<a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time" target="_blank">UTC</a>)</header>
+        <p id="utcTime"></p>
+        <footer>
+          <small>Which is actually a different thing than Greenwich Mean Time <a href="https://en.wikipedia.org/wiki/Greenwich_Mean_Time" target="_blank">(GMT)</a>!</small>
+        </footer>
+      </article>
+
+      <article id="beat">
+        <header>
+          <a href="https://en.wikipedia.org/wiki/Swatch_Internet_Time" target="_blank">Swatch Internet Time</a>
+        </header>
+        <p id="beatTime"></p>
+        <progress id="beatTimeTimeline" max="1000"></progress>
+        <footer>
+          <small>Also known as <strong>.beat</strong> time.</small>
+        </footer>
+      </article>
+    </main>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        tick();
+        setInterval(tick, 10);
+      });
+
+      const solarSystemChart = document.getElementById('solarSystemChart');
+      const sun = document.getElementById('sun');
+      const mercury = document.getElementById('mercury');
+      const venus = document.getElementById('venus');
+      const earth = document.getElementById('earth');
+      const moon = document.getElementById('moon');
+      const mars = document.getElementById('mars');
+      const jupiter = document.getElementById('jupiter');
+      const saturn = document.getElementById('saturn');
+      const uranus = document.getElementById('uranus');
+      const neptune = document.getElementById('neptune');
+      const yourTime = document.getElementById('yourTime');
+      const utcTime = document.getElementById('utcTime');
+      const beatTime = document.getElementById('beatTime');
+      const beatTimeTimeline = document.getElementById('beatTimeTimeline');
+
+      function tick() {
+        let date = new Date();
+
+        let timeformat = {
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          timeZoneName: 'short',
+        };
+        yourTime.innerHTML = date.toLocaleTimeString('en-US', timeformat);
+
+        // solar system
+        let daysSinceEpoch = (date.getTime() - Date.parse('1970-01-01')) / 86400000; // 1000 * 60 * 60 * 24
+        const planets = {
+          mercury: { period: 88, startAngle: 17.67, distance: 50 },
+          venus: { period: 224.7, startAngle: 354.74, distance: 75 },
+          earth: { period: 365.25, startAngle: 0, distance: 100 },
+          mars: { period: 687, startAngle: 61.5, distance: 125 },
+          jupiter: { period: 4333, startAngle: 290.63, distance: 150 },
+          saturn: { period: 10759, startAngle: 110.56, distance: 175 },
+          uranus: { period: 30687, startAngle: 266.85, distance: 200 },
+          neptune: { period: 60190, startAngle: 317.93, distance: 225 },
+        };
+
+        Object.entries(planets).forEach(([planet, data]) => {
+          const degreesPerDay = 360 / data.period;
+          const currentAngle = (data.startAngle + daysSinceEpoch * degreesPerDay) % 360;
+          const planetElement = document.getElementById(planet);
+          if (planetElement) {
+            planetElement.style.transform = 'translate(-50%, -50%) rotate(' + currentAngle + 'deg) translateX(' + data.distance + 'px) rotate(-' + currentAngle + 'deg)';
+          }
+        });
+
+        // moon
+        const moonPeriod = 29.5305;
+        const startLunarAge = 22.69;
+        const currentPhase = (daysSinceEpoch + startLunarAge) % moonPeriod;
+        switch (true) {
+          case currentPhase < 1.84566:
+            moon.innerHTML = '&#127761;';
+            break;
+          case currentPhase < 5.53699:
+            moon.innerHTML = '&#127762;';
+            break;
+          case currentPhase < 9.22831:
+            moon.innerHTML = '&#127763;';
+            break;
+          case currentPhase < 12.91963:
+            moon.innerHTML = '&#127764;';
+            break;
+          case currentPhase < 16.61096:
+            moon.innerHTML = '&#127765;';
+            break;
+          case currentPhase < 20.30228:
+            moon.innerHTML = '&#127766;';
+            break;
+          case currentPhase < 23.99361:
+            moon.innerHTML = '&#127767;';
+            break;
+          case currentPhase < 27.68493:
+            moon.innerHTML = '&#127768;';
+            break;
+          case currentPhase < 29.53:
+            moon.innerHTML = '&#127761;';
+            break;
+          default:
+            moon.innerHTML = '&#127771;';
+        }
+        const moonOrbitRadius = 30;
+        const moonPhaseAngle = (currentPhase / moonPeriod) * 360;
+        moon.style.transform = 'rotate(' + moonPhaseAngle + 'deg) translate(' + moonOrbitRadius + 'px)';
+
+        // intl utc time
+        timeformat['timeZone'] = 'UTC';
+        utcTime.innerHTML = date.toLocaleTimeString('en-US', timeformat);
+
+        // beat time (swatch time)
+        let beat = date.getUTCHours() * 3600 + date.getUTCMinutes() * 60 + date.getUTCSeconds();
+        beat = (beat / 86.4) % 1000;
+        beatTime.innerHTML = '@' + beat.toFixed(2) + ' .beats';
+        beatTimeTimeline.value = beat;
+      }
+    </script>
+  </body>
+</html>
