@@ -63,6 +63,7 @@
         }
       }
     </style>
+    <script src='https://cdn.jsdelivr.net/npm/temporal-polyfill@latest/global.min.js'></script>
   </head>
   <body>
     <header class="container">
@@ -138,26 +139,30 @@
       const beatTime = document.getElementById('beatTime');
       const beatTimeTimeline = document.getElementById('beatTimeTimeline');
 
-      let date = new Date();
+      let now = Temporal.Now.instant();
+      let zonedNow = Temporal.Now.zonedDateTimeISO();
 
       function tick() {
-        date = new Date();
+        now = Temporal.Now.instant();
+        zonedNow = Temporal.Now.zonedDateTimeISO();
 
-        // console.log(date);
+        // console.log(now.toString());
+        // console.log(zonedNow.toString());
 
         // solar system
-        let daysSinceEpoch = (date.getTime() - Date.parse('1970-01-01')) / 86400000; // 1000 * 60 * 60 * 24
+        const epochStart = Temporal.Instant.from('1970-01-01T00:00:00Z');
+        const daysSinceEpoch = Number(now.since(epochStart, { largestUnit: 'hour' }).total('days'));
         const chartSize = solarSystemChart.offsetWidth;
         const baseDistance = chartSize / 5;
         const planets = {
-          mercury: { period: 88, startAngle: 17.67, distance: baseDistance * 0.5 },
-          venus: { period: 224.7, startAngle: 354.74, distance: baseDistance * 0.75 },
-          us: { period: 365.25, startAngle: 0, distance: baseDistance },
-          mars: { period: 687, startAngle: 61.5, distance: baseDistance * 1.25 },
-          jupiter: { period: 4333, startAngle: 290.63, distance: baseDistance * 1.5 },
-          saturn: { period: 10759, startAngle: 110.56, distance: baseDistance * 1.75 },
-          uranus: { period: 30687, startAngle: 266.85, distance: baseDistance * 2 },
-          neptune: { period: 60190, startAngle: 317.93, distance: baseDistance * 2.25 },
+          "mercury": { "period": 88, "startAngle": 17.67, "distance": baseDistance * 0.5 },
+          "venus": { "period": 224.7, "startAngle": 354.74, "distance": baseDistance * 0.75 },
+          "us": { "period": 365.25, "startAngle": 0, "distance": baseDistance },
+          "mars": { "period": 687, "startAngle": 61.5, "distance": baseDistance * 1.25 },
+          "jupiter": { "period": 4333, "startAngle": 290.63, "distance": baseDistance * 1.5 },
+          "saturn": { "period": 10759, "startAngle": 110.56, "distance": baseDistance * 1.75 },
+          "uranus": { "period": 30687, "startAngle": 266.85, "distance": baseDistance * 2 },
+          "neptune": { "period": 60190, "startAngle": 317.93, "distance": baseDistance * 2.25 },
         };
 
         Object.entries(planets).forEach(([planet, data]) => {
@@ -168,14 +173,15 @@
             planetElement.style.transform = 'translate(-50%, -50%) rotate(' + currentAngle + 'deg) translateX(' + data.distance + 'px) rotate(-' + currentAngle + 'deg)';
           }
         });
+        const utcHour = now.toZonedDateTimeISO('UTC').hour;
         switch (true) {
-          case date.getUTCHours() < 6:
+          case utcHour < 6:
             earth.innerHTML = '&#127759;'; // Asia/Australia
             break;
-          case date.getUTCHours() < 14:
+          case utcHour < 14:
             earth.innerHTML = '&#127757;'; // Europe/Africa
             break;
-          case date.getUTCHours() < 22:
+          case utcHour < 22:
             earth.innerHTML = '&#127758;'; // Americas
             break;
           default:
@@ -222,21 +228,25 @@
         moon.style.transform = 'rotate(' + moonPhaseAngle + 'deg) translate(' + moonOrbitRadius + 'px)';
 
         // local time
-        let timeformat = {
-          hour: 'numeric',
-          minute: 'numeric',
-          second: 'numeric',
-          timeZoneName: 'short',
-        };
-        yourTime.innerHTML = date.toLocaleTimeString('en-US', timeformat);
+        yourTime.innerHTML = zonedNow.toLocaleString('en-US', {
+          "hour": "numeric",
+          "minute": "numeric",
+          "second": "numeric",
+          "timeZoneName": "short"
+        });
 
         // intl utc time
-        timeformat['timeZone'] = 'UTC';
-        utcTime.innerHTML = date.toLocaleTimeString('en-US', timeformat);
+        const utcTime = now.toZonedDateTimeISO('UTC');
+        utcTime.innerHTML = utcTime.toLocaleString('en-US', {
+          "hour": "numeric",
+          "minute": "numeric",
+          "second": "numeric",
+          "timeZoneName": "short"
+        });
 
         // beat time (swatch time)
-        let beat = date.getUTCHours() * 3600 + date.getUTCMinutes() * 60 + date.getUTCSeconds();
-        beat = (beat / 86.4) % 1000;
+        const utcSeconds = (utcTime.hour * 3600) + (utcTime.minute * 60) + utcTime.second;
+        const beat = (utcSeconds / 86.4) % 1000;
         beatTime.innerHTML = '@' + beat.toFixed(2) + ' .beats';
         beatTimeTimeline.value = beat;
       }
