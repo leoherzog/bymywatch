@@ -236,8 +236,7 @@
         });
 
         // intl utc time
-        const utcTime = now.toZonedDateTimeISO('UTC');
-        utcTime.innerHTML = utcTime.toLocaleString('en-US', {
+        utcTime.innerHTML = now.toZonedDateTimeISO('UTC').toLocaleString('en-US', {
           "hour": "numeric",
           "minute": "numeric",
           "second": "numeric",
