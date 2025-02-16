@@ -145,6 +145,7 @@
       function tick() {
         now = Temporal.Now.instant();
         zonedNow = Temporal.Now.zonedDateTimeISO();
+        utcNow = now.toZonedDateTimeISO('UTC');
 
         // console.log(now.toString());
         // console.log(zonedNow.toString());
@@ -236,7 +237,7 @@
         });
 
         // intl utc time
-        utcTime.innerHTML = now.toZonedDateTimeISO('UTC').toLocaleString('en-US', {
+        utcTime.innerHTML = utcNow.toLocaleString('en-US', {
           "hour": "numeric",
           "minute": "numeric",
           "second": "numeric",
@@ -244,7 +245,7 @@
         });
 
         // beat time (swatch time)
-        const utcSeconds = (utcTime.hour * 3600) + (utcTime.minute * 60) + utcTime.second;
+        const utcSeconds = (utcNow.hour * 3600) + (utcNow.minute * 60) + utcNow.second;
         const beat = (utcSeconds / 86.4) % 1000;
         beatTime.innerHTML = '@' + beat.toFixed(2) + ' .beats';
         beatTimeTimeline.value = beat;
