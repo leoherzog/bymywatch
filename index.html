@@ -66,11 +66,16 @@
     <script src='https://cdn.jsdelivr.net/npm/temporal-polyfill@latest/global.min.js'></script>
   </head>
   <body>
-    <header class="container">
+    <header class="container grid">
       <hgroup>
         <h1>By My Watch</h1>
         <h2>The ways that humans represent time.</h2>
       </hgroup>
+      <hgroup>
+        <input id="time" type="datetime-local" />
+        <input id="timetravel" type="range" value="50" min="0" max="100" step="1" />
+      </hgroup>
+
     </header>
 
     <main class="container">
@@ -100,7 +105,7 @@
         <header>Universal Coordinated Time (<a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time" target="_blank">UTC</a>)</header>
         <p id="utcTime"></p>
         <footer>
-          <small>Which is actually a different thing than Greenwich Mean Time <a href="https://en.wikipedia.org/wiki/Greenwich_Mean_Time" target="_blank">(GMT)</a>!</small>
+          <small>Which is actually a different thing than Greenwich Mean Time (<a href="https://en.wikipedia.org/wiki/Greenwich_Mean_Time" target="_blank">GMT</a>)!</small>
         </footer>
       </article>
 
@@ -117,10 +122,10 @@
     </main>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        tick();
-        setInterval(tick, 16.666); // 60Hz
-      });
+      const time = document.getElementById('time');
+      const timeTravel = document.getElementById('timetravel');
+      let timeMultiplier = 0;
+      let lastFrameTime = performance.now();
 
       const solarSystemChart = document.getElementById('solarSystemChart');
       const sun = document.getElementById('sun');
@@ -139,13 +144,45 @@
       const beatTime = document.getElementById('beatTime');
       const beatTimeTimeline = document.getElementById('beatTimeTimeline');
 
+      let tickInterval;
+
       let now = Temporal.Now.instant();
       let zonedNow = Temporal.Now.zonedDateTimeISO();
+      let utcNow = now.toZonedDateTimeISO('UTC');
 
-      function tick() {
-        now = Temporal.Now.instant();
-        zonedNow = Temporal.Now.zonedDateTimeISO();
-        utcNow = now.toZonedDateTimeISO('UTC');
+      let manuallySpecified = false;
+
+      function tick(msSincePageLoad) {
+
+        const deltaTime = (msSincePageLoad - lastFrameTime) / 1000;
+        lastFrameTime = msSincePageLoad;
+
+        if (!manuallySpecified) { // continue with current system time
+          now = Temporal.Now.instant();
+          zonedNow = Temporal.Now.zonedDateTimeISO();
+          utcNow = now.toZonedDateTimeISO('UTC');
+          time.value = zonedNow.toPlainDateTime().toString().slice(0, 16);
+        } else {
+          const speedValue = timeTravel.value;
+          if (speedValue !== 50) {
+            if (speedValue < 45) {
+              timeMultiplier = -Math.exp((45 - speedValue) / 5);
+            } else if (speedValue > 55) {
+              timeMultiplier = Math.exp((speedValue - 55) / 5);
+            } else {
+              timeMultiplier = 0;
+            }
+
+            const adjustment = Math.round(timeMultiplier * deltaTime * 1000 * 3600);
+
+            const newInstant = Temporal.Instant.from(now.toString()).add({ milliseconds: adjustment });
+            now = newInstant;
+            zonedNow = now.toZonedDateTimeISO(Temporal.Now.timeZoneId());
+            utcNow = now.toZonedDateTimeISO('UTC');
+
+            time.value = zonedNow.toPlainDateTime().toString().slice(0, 16);
+          }
+        }
 
         // console.log(now.toString());
         // console.log(zonedNow.toString());
@@ -250,6 +287,38 @@
         beatTime.innerHTML = '@' + beat.toFixed(2) + ' .beats';
         beatTimeTimeline.value = beat;
       }
+
+      function onmanuallySpecifiedTime() {
+        clearInterval(tickInterval);
+        manuallySpecified = true;
+        const plainDateTime = Temporal.PlainDateTime.from(time.value);
+        const localTimeZone = Temporal.Now.timeZoneId();
+        const manuallySpecifiedTime = Temporal.TimeZone.from(localTimeZone).getInstantFor(plainDateTime);
+        now = manuallySpecifiedTime;
+        zonedNow = manuallySpecifiedTime.toZonedDateTimeISO(localTimeZone);
+        utcNow = manuallySpecifiedTime.toZonedDateTimeISO('UTC');
+        tick(performance.now());
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        time.addEventListener('change', onmanuallySpecifiedTime);
+        lastFrameTime = performance.now();
+        tick(performance.now());
+        tickInterval = setInterval(() => tick(performance.now()), 16.666); // 60Hz
+        timeTravel.addEventListener('input', function() {
+          if (!manuallySpecified) {
+            manuallySpecified = true;
+            lastFrameTime = performance.now();
+            now = Temporal.Now.instant();
+            zonedNow = Temporal.Now.zonedDateTimeISO();
+            utcNow = now.toZonedDateTimeISO('UTC');
+          }
+        });
+        timeTravel.addEventListener('change', function() {
+          timeTravel.value = 50;
+          timeMultiplier = 0;
+        });
+      });
     </script>
     <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "d5f7a4bd66394258918237b45456ffdf"}'></script>
   </body>
