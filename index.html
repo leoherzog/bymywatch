@@ -206,7 +206,7 @@
         Object.entries(planets).forEach(([planet, data]) => {
           const degreesPerDay = 360 / data.period;
           const currentAngle = (Math.round((data.startAngle + daysSinceEpoch * degreesPerDay) % 360) - 90 + 360) % 360;
-          const planetElement = document.getElementById(planet);
+          const planetElement = window[planet];
           if (planetElement) {
             planetElement.style.transform = 'translate(-50%, -50%) rotate(' + currentAngle + 'deg) translateX(' + data.distance + 'px) rotate(-' + currentAngle + 'deg)';
           }
