@@ -289,7 +289,6 @@
       }
 
       function onmanuallySpecifiedTime() {
-        clearInterval(tickInterval);
         manuallySpecified = true;
         const plainDateTime = Temporal.PlainDateTime.from(time.value);
         const localTimeZone = Temporal.Now.timeZoneId();
