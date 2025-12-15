@@ -192,18 +192,18 @@
         const chartSize = solarSystemChart.offsetWidth;
         const baseDistance = chartSize / 5;
         const planets = {
-          "mercury": { "period": 87.969, "startAngle": 36.665, "distanceMultiplier": 0.5 },
-          "venus": { "period": 224.701, "startAngle": 267.498, "distanceMultiplier": 0.75 },
-          "us": { "period": 365.256, "startAngle": 100.313, "distanceMultiplier": 1 },
-          "mars": { "period": 686.980, "startAngle": 20.523, "distanceMultiplier": 1.25 },
-          "jupiter": { "period": 4332.59, "startAngle": 203.127, "distanceMultiplier": 1.5 },
-          "saturn": { "period": 10755.70, "startAngle": 38.159, "distanceMultiplier": 1.75 },
-          "uranus": { "period": 30687.15, "startAngle": 186.058, "distanceMultiplier": 2 },
-          "neptune": { "period": 60190.03, "startAngle": 239.112, "distanceMultiplier": 2.25 },
+          "mercury": { "period": 87.969, "startAngle": 296.20, "distanceMultiplier": 0.5 },
+          "venus": { "period": 224.701, "startAngle": 166.59, "distanceMultiplier": 0.75 },
+          "us": { "period": 365.256, "startAngle": 0, "distanceMultiplier": 1 },
+          "mars": { "period": 686.980, "startAngle": 279.92, "distanceMultiplier": 1.25 },
+          "jupiter": { "period": 4332.59, "startAngle": 104.12, "distanceMultiplier": 1.5 },
+          "saturn": { "period": 10755.70, "startAngle": 297.57, "distanceMultiplier": 1.75 },
+          "uranus": { "period": 30687.15, "startAngle": 85.48, "distanceMultiplier": 2 },
+          "neptune": { "period": 60190.03, "startAngle": 138.52, "distanceMultiplier": 2.25 },
         };
         Object.entries(planets).forEach(([planet, data]) => {
           const degreesPerDay = 360 / data.period;
-          const currentAngle = (Math.round((data.startAngle + daysSinceEpoch * degreesPerDay) % 360) - 90 + 360) % 360;
+          const currentAngle = Math.round((data.startAngle + daysSinceEpoch * degreesPerDay) % 360) + 90;
           const distance = baseDistance * data.distanceMultiplier;
           const planetElement = window[planet];
           if (planetElement) {
