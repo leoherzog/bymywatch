@@ -144,8 +144,6 @@
       const beatTime = document.getElementById('beatTime');
       const beatTimeTimeline = document.getElementById('beatTimeTimeline');
 
-      let tickInterval;
-
       let now = Temporal.Now.instant();
       let zonedNow = Temporal.Now.zonedDateTimeISO();
       let utcNow = now.toZonedDateTimeISO('UTC');
@@ -302,7 +300,11 @@
         time.addEventListener('change', onmanuallySpecifiedTime);
         lastFrameTime = performance.now();
         tick(performance.now());
-        tickInterval = setInterval(() => tick(performance.now()), 16.666); // 60Hz
+        function animationLoop(timestamp) {
+          tick(timestamp);
+          requestAnimationFrame(animationLoop);
+        }
+        requestAnimationFrame(animationLoop);
         timeTravel.addEventListener('input', function() {
           if (!manuallySpecified) {
             manuallySpecified = true;
