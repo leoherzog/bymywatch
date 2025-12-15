@@ -144,11 +144,19 @@
       const beatTime = document.getElementById('beatTime');
       const beatTimeTimeline = document.getElementById('beatTimeTimeline');
 
-      let now = Temporal.Now.instant();
-      let zonedNow = Temporal.Now.zonedDateTimeISO();
-      let utcNow = now.toZonedDateTimeISO('UTC');
+      const localTimeZone = Temporal.Now.timeZoneId();
+      const epoch = Temporal.Instant.from('1970-01-01T00:00:00Z');
 
+      let now, zonedNow, utcNow;
       let manuallySpecified = false;
+
+      function updateTimeFromNow() {
+        now = Temporal.Now.instant();
+        zonedNow = now.toZonedDateTimeISO(localTimeZone);
+        utcNow = now.toZonedDateTimeISO('UTC');
+      }
+
+      updateTimeFromNow();
 
       function tick(msSincePageLoad) {
 
@@ -156,9 +164,7 @@
         lastFrameTime = msSincePageLoad;
 
         if (!manuallySpecified) { // continue with current system time
-          now = Temporal.Now.instant();
-          zonedNow = Temporal.Now.zonedDateTimeISO();
-          utcNow = now.toZonedDateTimeISO('UTC');
+          updateTimeFromNow();
           time.value = zonedNow.toPlainDateTime().toString().slice(0, 16);
         } else {
           const speedValue = timeTravel.value;
@@ -173,40 +179,35 @@
 
             const adjustment = Math.round(timeMultiplier * deltaTime * 1000 * 3600);
 
-            const newInstant = now.add({ milliseconds: adjustment });
-            now = newInstant;
-            zonedNow = now.toZonedDateTimeISO(Temporal.Now.timeZoneId());
+            now = now.add({ "milliseconds": adjustment });
+            zonedNow = now.toZonedDateTimeISO(localTimeZone);
             utcNow = now.toZonedDateTimeISO('UTC');
 
             time.value = zonedNow.toPlainDateTime().toString().slice(0, 16);
           }
         }
 
-        // console.log(now.toString());
-        // console.log(zonedNow.toString());
-
         // solar system
-        const epochStart = Temporal.Instant.from('1970-01-01T00:00:00Z');
-        const daysSinceEpoch = Number(now.since(epochStart, { "largestUnit": "hour" }).total('days'));
+        const daysSinceEpoch = Number(now.since(epoch, { "largestUnit": "hour" }).total('days'));
         const chartSize = solarSystemChart.offsetWidth;
         const baseDistance = chartSize / 5;
         const planets = {
-          "mercury": { "period": 87.969, "startAngle": 36.665, "distance": baseDistance * 0.5 },
-          "venus": { "period": 224.701, "startAngle": 267.498, "distance": baseDistance * 0.75 },
-          "us": { "period": 365.256, "startAngle": 100.313, "distance": baseDistance },
-          "mars": { "period": 686.980, "startAngle": 20.523, "distance": baseDistance * 1.25 },
-          "jupiter": { "period": 4332.59, "startAngle": 203.127, "distance": baseDistance * 1.5 },
-          "saturn": { "period": 10755.70, "startAngle": 38.159, "distance": baseDistance * 1.75 },
-          "uranus": { "period": 30687.15, "startAngle": 186.058, "distance": baseDistance * 2 },
-          "neptune": { "period": 60190.03, "startAngle": 239.112, "distance": baseDistance * 2.25 },
+          "mercury": { "period": 87.969, "startAngle": 36.665, "distanceMultiplier": 0.5 },
+          "venus": { "period": 224.701, "startAngle": 267.498, "distanceMultiplier": 0.75 },
+          "us": { "period": 365.256, "startAngle": 100.313, "distanceMultiplier": 1 },
+          "mars": { "period": 686.980, "startAngle": 20.523, "distanceMultiplier": 1.25 },
+          "jupiter": { "period": 4332.59, "startAngle": 203.127, "distanceMultiplier": 1.5 },
+          "saturn": { "period": 10755.70, "startAngle": 38.159, "distanceMultiplier": 1.75 },
+          "uranus": { "period": 30687.15, "startAngle": 186.058, "distanceMultiplier": 2 },
+          "neptune": { "period": 60190.03, "startAngle": 239.112, "distanceMultiplier": 2.25 },
         };
-
         Object.entries(planets).forEach(([planet, data]) => {
           const degreesPerDay = 360 / data.period;
           const currentAngle = (Math.round((data.startAngle + daysSinceEpoch * degreesPerDay) % 360) - 90 + 360) % 360;
+          const distance = baseDistance * data.distanceMultiplier;
           const planetElement = window[planet];
           if (planetElement) {
-            planetElement.style.transform = 'translate(-50%, -50%) rotate(' + (-currentAngle) + 'deg) translateX(' + data.distance + 'px) rotate(' + currentAngle + 'deg)';
+            planetElement.style.transform = `translate(-50%, -50%) rotate(${-currentAngle}deg) translateX(${distance}px) rotate(${currentAngle}deg)`;
           }
         });
         const utcHour = now.toZonedDateTimeISO('UTC').hour;
@@ -288,11 +289,9 @@
       function onmanuallySpecifiedTime() {
         manuallySpecified = true;
         const plainDateTime = Temporal.PlainDateTime.from(time.value);
-        const localTimeZone = Temporal.Now.timeZoneId();
-        const manuallySpecifiedTime = Temporal.TimeZone.from(localTimeZone).getInstantFor(plainDateTime);
-        now = manuallySpecifiedTime;
-        zonedNow = manuallySpecifiedTime.toZonedDateTimeISO(localTimeZone);
-        utcNow = manuallySpecifiedTime.toZonedDateTimeISO('UTC');
+        now = plainDateTime.toZonedDateTime(localTimeZone).toInstant();
+        zonedNow = now.toZonedDateTimeISO(localTimeZone);
+        utcNow = now.toZonedDateTimeISO('UTC');
         tick(performance.now());
       }
 
@@ -309,9 +308,7 @@
           if (!manuallySpecified) {
             manuallySpecified = true;
             lastFrameTime = performance.now();
-            now = Temporal.Now.instant();
-            zonedNow = Temporal.Now.zonedDateTimeISO();
-            utcNow = now.toZonedDateTimeISO('UTC');
+            updateTimeFromNow();
           }
         });
         timeTravel.addEventListener('change', function() {
