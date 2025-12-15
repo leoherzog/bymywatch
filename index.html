@@ -280,9 +280,9 @@
           "timeZoneName": "short"
         });
 
-        // beat time (swatch time)
-        const utcSeconds = (utcNow.hour * 3600) + (utcNow.minute * 60) + utcNow.second;
-        const beat = (utcSeconds / 86.4) % 1000;
+        // beat time (swatch time) - based on BMT (Biel Mean Time = UTC+1)
+        const bmtSeconds = (((utcNow.hour + 1) % 24) * 3600) + (utcNow.minute * 60) + utcNow.second;
+        const beat = (bmtSeconds / 86.4) % 1000;
         beatTime.innerHTML = '@' + beat.toFixed(2) + ' .beats';
         beatTimeTimeline.value = beat;
       }
