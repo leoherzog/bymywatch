@@ -175,7 +175,7 @@
 
             const adjustment = Math.round(timeMultiplier * deltaTime * 1000 * 3600);
 
-            const newInstant = Temporal.Instant.from(now.toString()).add({ milliseconds: adjustment });
+            const newInstant = now.add({ milliseconds: adjustment });
             now = newInstant;
             zonedNow = now.toZonedDateTimeISO(Temporal.Now.timeZoneId());
             utcNow = now.toZonedDateTimeISO('UTC');
