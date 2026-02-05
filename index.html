@@ -54,6 +54,14 @@
         left: 6px;
         cursor: default;
       }
+      [role="group"]:has(#timetravel) {
+        align-items: center;
+      }
+      #now {
+        width: auto;
+        height: auto;
+        padding: 0.25rem 0.5rem;
+      }
       @media screen and (max-width: 1024px) {
         article {
           max-width: 100%;
@@ -73,7 +81,10 @@
       </hgroup>
       <hgroup>
         <input id="time" type="datetime-local" />
-        <input id="timetravel" type="range" value="50" min="0" max="100" step="1" />
+        <fieldset role="group">
+          <input id="timetravel" type="range" value="50" min="0" max="100" step="1" />
+          <input id="now" type="button" value="Now" />
+        </fieldset>
       </hgroup>
 
     </header>
@@ -314,6 +325,12 @@
         timeTravel.addEventListener('change', function() {
           timeTravel.value = 50;
           timeMultiplier = 0;
+        });
+        document.getElementById('now').addEventListener('click', function() {
+          manuallySpecified = false;
+          timeTravel.value = 50;
+          timeMultiplier = 0;
+          updateTimeFromNow();
         });
       });
     </script>
