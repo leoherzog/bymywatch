@@ -4,38 +4,84 @@ This file provides guidance to Claude Code, OpenAI Codex, Gemini, etc when worki
 
 ## Project Overview
 
-**By My Watch** is a single-page web app that visualizes time in multiple formats alongside an interactive orrery (solar system model). It was built as a learning exercise for the JavaScript Temporal API.
+**By My Watch** is a single-page web app that visualizes time in multiple formats alongside an interactive orrery (solar system model). It was built as a
+learning exercise for the JavaScript Temporal API.
 
 ## Architecture
 
-The entire application lives in **`index.html`** — a single file containing all HTML, CSS, and JavaScript. There is no build system, no package manager, no bundler, and no test framework.
+A **Vite** vanilla JS project. Each time-display card is a separate ES module in `src/cards/`. There are no frameworks — just plain JavaScript, CSS, and a
+bundler.
 
-External dependencies are loaded via CDN:
-- **PicoCSS 2.x** — classless CSS framework for styling
-- **temporal-polyfill** — Temporal API polyfill for browser compatibility
-- **Cloudflare Insights** — analytics beacon
+### File Structure
 
-### Core Components (all in `index.html`)
+```
+index.html              — Shell: PicoCSS CDN, header controls, empty <main>, Cloudflare beacon
+package.json            — Dependencies (read by Deno)
+deno.json               — Deno configuration
+public/
+  robots.txt
+src/
+  main.js               — Entry point: time state, animation loop, controls, card orchestration
+  style.css             — Global styles (article layout, controls, responsive breakpoint)
+  cards/
+    orrery.js           — Solar system card (planet data, positioning, moon phase)
+    orrery.css          — Orrery-specific styles
+    local-time.js       — Local time card
+    utc-time.js         — UTC card
+    beat-time.js        — Swatch Internet Time card
+```
 
-1. **Orrery / Solar System Chart** — CSS-based circular visualization with 8 planets, Sun, Earth, and Moon. Planets are positioned using CSS `rotate()`/`translateX()` transforms calculated from real orbital periods and start angles calibrated against JPL HORIZONS data. The Moon orbits Earth with phase tracking (29.5305-day lunar cycle, 8 emoji phases). Earth's globe emoji rotates based on UTC hour.
+### Dependencies
 
-2. **Time Display** — Shows local time, UTC, and Swatch Internet Time (.beat time, BMT = UTC+1, 1000 beats/day).
+- **PicoCSS 2.x** — classless CSS framework (CDN link in `index.html`)
+- **temporal-polyfill** — Temporal API polyfill (npm package, imported in `main.js`)
+- **Vite** — dev server and bundler (dev dependency)
+- **Cloudflare Insights** — analytics beacon (CDN script in `index.html`)
 
-3. **Time Travel Controls** — A datetime-local input for manual time selection and a range slider with exponential speed control for time travel. The slider uses a dead zone (45-55) around center, with exponential acceleration outside it. A "Now" button resets the clock back to real-time.
+### Card Module Interface
 
-4. **Animation Loop** — `requestAnimationFrame`-based with delta-time calculation for frame-independent updates. The `tick()` function is the main update, called ~60fps.
+Every card in `src/cards/` exports two functions:
 
-### Key State Variables
+- `create()` — Called once at init. Returns an `<article>` DOM element to be appended to `<main>`.
+- `update(timeState)` — Called every animation frame (~60fps). Mutates the DOM created by `create()`.
+
+The `timeState` object: `{ now, zonedNow, utcNow, daysSinceEpoch }`
+
+To add a new card: create `src/cards/my-card.js` (and optionally `.css`), export `create()` and `update()`, then import and add it to the `cards` array in
+`src/main.js`.
+
+### Core Components
+
+1. **Orrery / Solar System Chart** (`src/cards/orrery.js`) — CSS-based circular visualization with 8 planets, Sun, Earth, and Moon. Planets positioned using CSS
+   `rotate()`/`translateX()` transforms from real orbital periods. Planet data is a module-level constant. Moon phase tracking uses a 29.5305-day lunar cycle
+   with 8 emoji phases. Earth's globe emoji rotates by UTC hour.
+
+2. **Time Displays** (`src/cards/local-time.js`, `src/cards/utc-time.js`, `src/cards/beat-time.js`) — Local time, UTC, and Swatch Internet Time (.beat time, BMT
+   = UTC+1, 1000 beats/day).
+
+3. **Time Travel Controls** (in `index.html` header, wired in `src/main.js`) — A datetime-local input for manual time selection and a range slider with
+   exponential speed control. The slider uses a dead zone (45-55) around center, with exponential acceleration outside it. A "Now" button resets to real-time.
+
+4. **Animation Loop** (`src/main.js`) — `requestAnimationFrame`-based with delta-time calculation. The `tick()` function updates time state, then calls
+   `update()` on every card.
+
+### Key State Variables (in `src/main.js`)
 
 - `now` / `zonedNow` / `utcNow` — current time as Temporal.Instant and ZonedDateTime
 - `manuallySpecified` — whether user has overridden system time
 - `timeMultiplier` — speed factor for time travel slider
-- `daysSinceEpoch` — used for all astronomical position calculations
+- `daysSinceEpoch` — computed in `buildTimeState()`, used for astronomical calculations
 
 ### Astronomical Data
 
-Planet data is defined inline in `tick()` with properties: `period` (orbital period in days), `startAngle` (degrees at epoch), `distanceMultiplier` (for chart spacing). Orbital periods use high-precision values (e.g., Mercury: 87.96935 days).
+Planet data is defined as a module-level constant in `src/cards/orrery.js` with properties: `period` (orbital period in days), `startAngle` (degrees at epoch),
+`distanceMultiplier` (chart spacing). Orbital periods use high-precision values (e.g., Mercury: 87.96935 days).
 
 ## Development
 
-Open `index.html` directly in a browser or serve it with any static file server. No build or install step required.
+```bash
+deno install         # install dependencies
+deno task dev        # start Vite dev server
+deno task build      # production build to dist/
+deno task preview    # preview production build
+```

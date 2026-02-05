@@ -1,0 +1,7 @@
+{
+  "nodeModulesDir": "auto",
+  "fmt": {
+    "singleQuote": true,
+    "lineWidth": 160
+  }
+}
