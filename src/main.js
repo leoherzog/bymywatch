@@ -29,6 +29,7 @@ const cards = [orrery, localTime, utcTime, beatTime];
 // --- DOM references (header controls) ---
 const timeInput = document.getElementById('time');
 const timeTravel = document.getElementById('timetravel');
+const timeTravelContainer = document.getElementById('timetravel-container');
 const container = document.getElementById('card-container');
 
 // --- Initialize cards ---
@@ -53,7 +54,7 @@ function tick(msSincePageLoad) {
 
   if (!manuallySpecified) {
     updateTimeFromNow();
-    timeInput.value = zonedNow.toPlainDateTime().toString().slice(0, 16);
+    timeInput.value = zonedNow.toPlainDateTime().toString().slice(0, 19);
   } else {
     const speedValue = timeTravel.value;
     if (speedValue !== '50') {
@@ -70,7 +71,7 @@ function tick(msSincePageLoad) {
       zonedNow = now.toZonedDateTimeISO(localTimeZone);
       utcNow = now.toZonedDateTimeISO('UTC');
 
-      timeInput.value = zonedNow.toPlainDateTime().toString().slice(0, 16);
+      timeInput.value = zonedNow.toPlainDateTime().toString().slice(0, 19);
     }
   }
 
@@ -100,13 +101,22 @@ function onManuallySpecifiedTime() {
   tick(performance.now());
 }
 
-timeInput.addEventListener('change', onManuallySpecifiedTime);
+timeInput.addEventListener('change', function () {
+  onManuallySpecifiedTime();
+  if (manuallySpecified) showTooltip();
+});
+
+function showTooltip() {
+  timeTravelContainer.setAttribute('data-tooltip', 'Double-Click to Return to Now');
+  timeTravelContainer.setAttribute('data-placement', 'bottom');
+}
 
 timeTravel.addEventListener('input', function () {
   if (!manuallySpecified) {
     manuallySpecified = true;
     lastFrameTime = performance.now();
     updateTimeFromNow();
+    showTooltip();
   }
 });
 
@@ -115,11 +125,13 @@ timeTravel.addEventListener('change', function () {
   timeMultiplier = 0;
 });
 
-document.getElementById('now').addEventListener('click', function () {
+timeTravel.addEventListener('dblclick', function () {
   manuallySpecified = false;
   timeTravel.value = 50;
   timeMultiplier = 0;
   updateTimeFromNow();
+  timeTravelContainer.removeAttribute('data-tooltip');
+  timeTravelContainer.removeAttribute('data-placement');
 });
 
 // --- Animation loop ---

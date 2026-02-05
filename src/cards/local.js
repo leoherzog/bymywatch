@@ -10,6 +10,7 @@ export function create() {
 
   timeEl = document.createElement('h2');
   timeEl.id = 'yourTime';
+  timeEl.style.marginBottom = '0';
   article.appendChild(timeEl);
 
   return article;
