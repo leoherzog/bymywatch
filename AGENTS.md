@@ -30,8 +30,8 @@ src/
   cards/
     orrery.js           — Solar system card (planet data, positioning, moon phase)
     orrery.css          — Orrery-specific styles
-    calendar.js         — Monthly calendar grid card
-    calendar.css        — Calendar-specific styles
+    gregorian.js        — Gregorian calendar grid card
+    gregorian.css       — Gregorian calendar-specific styles
     earth.js            — Shared Earth / solar-position utilities (sub-solar longitude, emoji selection)
     greyline.js         — Grey line card (day/night terminator overlay on Earth emoji + local time readout)
     greyline.css        — Grey line-specific styles
@@ -64,9 +64,11 @@ To add a new card: create `src/cards/my-card.js` (and optionally `.css`), export
    `rotate()`/`translateX()` transforms from real orbital periods. Planet data is a module-level constant. Moon phase tracking uses a 29.5305-day lunar cycle
    with 8 emoji phases. Earth's globe emoji rotates by UTC hour.
 
-2. **Calendar** (`src/cards/calendar.js`) — Monthly calendar grid using a `<table>` with semantic Pico CSS elements (`<mark>` for today, `<time>` for each day,
-   `<abbr>` for weekday headers). Uses Temporal's `daysInMonth`, `dayOfWeek`, `dayOfYear`, `weekOfYear`, and `toLocaleString()` for locale-aware display. Rebuilds
-   the grid only on month transitions; day changes swap `<mark>` in place.
+2. **Gregorian Calendar** (`src/cards/gregorian.js`) — Toggleable month/year calendar view. Clicking the header switches between a single-month view (short weekday
+   headers, wider spacing) and a full 12-month year grid (narrow weekday headers, 3-column CSS Grid layout with responsive breakpoints). Uses semantic Pico CSS
+   elements (`<mark>` for today, `<time>` for each day, `<abbr>` for weekday headers, `<section>` per month in year view). Weekday ordering is locale-aware via
+   `Intl.Locale.getWeekInfo()`. Both views update every frame; the year view rebuilds only on year change, swaps `<mark>` for day/month changes. The month view
+   rebuilds on month transitions and swaps `<mark>` for day changes.
 
 3. **Time Displays** (`src/cards/utc.js`, `src/cards/beat.js`) — UTC and Swatch Internet Time (.beat time, BMT
    = UTC+1, 1000 beats/day). Local time is displayed within the grey line card.

@@ -1,0 +1,76 @@
+/* --- Toggle header --- */
+#localDate > header {
+  cursor: pointer;
+}
+
+#localDate .toggle-indicator {
+  float: right;
+  opacity: 0.5;
+}
+
+/* --- Month view (single month, wider spacing) --- */
+#localDate .month-view table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#localDate .month-view th,
+#localDate .month-view td {
+  width: calc(100% / 7);
+  text-align: center;
+  padding: 0.25rem;
+}
+
+/* --- Year grid layout --- */
+#localDate .year-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+#localDate .year-grid h3 {
+  text-align: center;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+#localDate .year-view table {
+  margin: 0;
+  width: 100%;
+}
+
+#localDate .year-view th,
+#localDate .year-view td {
+  width: calc(100% / 7);
+  text-align: center;
+  padding: 0.1rem;
+  font-size: 0.75rem;
+}
+
+#localDate .year-view th {
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
+/* --- Today highlight --- */
+#localDate mark {
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.35rem;
+}
+
+#localDate .year-view mark {
+  padding: 0.05rem 0.2rem;
+}
+
+/* --- Responsive breakpoints --- */
+@media screen and (max-width: 1024px) {
+  #localDate .year-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  #localDate .year-grid {
+    grid-template-columns: 1fr;
+  }
+}

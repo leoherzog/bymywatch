@@ -12,8 +12,6 @@ export function create() {
 
   const header = document.createElement('header');
   timeEl = document.createElement('h2');
-  timeEl.style.marginBottom = '0';
-  timeEl.style.textAlign = 'center';
   header.appendChild(timeEl);
   article.appendChild(header);
 
@@ -50,7 +48,7 @@ export function create() {
   shadowGroup.setAttribute('clip-path', 'url(#grey-line-clip)');
 
   shadowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  shadowPath.setAttribute('fill', 'rgba(0, 0, 0, 0.35)');
+  shadowPath.setAttribute('fill', 'rgba(0, 0, 0, 0.7)');
   shadowPath.setAttribute('filter', 'url(#grey-line-blur)');
   shadowGroup.appendChild(shadowPath);
   svg.appendChild(shadowGroup);

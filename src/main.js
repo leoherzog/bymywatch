@@ -4,7 +4,7 @@ import './style.css';
 import * as orrery from './cards/orrery.js';
 import * as utcTime from './cards/utc.js';
 import * as beatTime from './cards/beat.js';
-import * as calendar from './cards/calendar.js';
+import * as gregorian from './cards/gregorian.js';
 import * as greyLine from './cards/greyline.js';
 
 // --- Time state ---
@@ -25,7 +25,7 @@ function updateTimeFromNow() {
 updateTimeFromNow();
 
 // --- Cards ---
-const cards = [orrery, greyLine, calendar, utcTime, beatTime];
+const cards = [orrery, greyLine, gregorian, utcTime, beatTime];
 
 // --- DOM references (header controls) ---
 const timeInput = document.getElementById('time');

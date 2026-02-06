@@ -36,8 +36,6 @@ export function create() {
 
   const header = document.createElement('header');
   dateEl = document.createElement('h2');
-  dateEl.style.marginBottom = '0';
-  dateEl.style.textAlign = 'center';
   header.appendChild(dateEl);
   article.appendChild(header);
 
