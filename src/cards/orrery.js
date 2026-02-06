@@ -1,4 +1,5 @@
 import './orrery.css';
+import { getSubSolarLongitude, getEarthEmoji } from './earth.js';
 
 const PLANETS = {
   mercury: { period: 87.96935, startAngle: 296.20, distanceMultiplier: 0.5, tooltip: 'Mercury', symbol: '\u263F' },
@@ -92,17 +93,8 @@ export function update({ daysSinceEpoch, utcNow }) {
     }
   }
 
-  // Earth emoji rotation by UTC hour
-  const utcHour = utcNow.hour;
-  if (utcHour < 6) {
-    earth.textContent = '\u{1F30F}';
-  } else if (utcHour < 14) {
-    earth.textContent = '\u{1F30D}';
-  } else if (utcHour < 22) {
-    earth.textContent = '\u{1F30E}';
-  } else {
-    earth.textContent = '\u{1F30F}';
-  }
+  // Earth emoji — show the hemisphere facing the sun
+  earth.textContent = getEarthEmoji(getSubSolarLongitude(utcNow));
 
   // Moon phase
   const currentPhase = (daysSinceEpoch + START_LUNAR_AGE) % MOON_PERIOD;

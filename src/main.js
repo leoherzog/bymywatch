@@ -6,6 +6,7 @@ import * as localTime from './cards/local.js';
 import * as utcTime from './cards/utc.js';
 import * as beatTime from './cards/beat.js';
 import * as calendar from './cards/calendar.js';
+import * as greyLine from './cards/greyline.js';
 
 // --- Time state ---
 const localTimeZone = Temporal.Now.timeZoneId();
@@ -25,7 +26,7 @@ function updateTimeFromNow() {
 updateTimeFromNow();
 
 // --- Cards ---
-const cards = [orrery, calendar, localTime, utcTime, beatTime];
+const cards = [orrery, calendar, greyLine, localTime, utcTime, beatTime];
 
 // --- DOM references (header controls) ---
 const timeInput = document.getElementById('time');
@@ -45,6 +46,7 @@ function buildTimeState() {
     zonedNow,
     utcNow,
     daysSinceEpoch: Number(now.since(epoch, { largestUnit: 'hour' }).total('days')),
+    manuallySpecified,
   };
 }
 

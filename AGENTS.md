@@ -32,6 +32,9 @@ src/
     orrery.css          — Orrery-specific styles
     calendar.js         — Monthly calendar grid card
     calendar.css        — Calendar-specific styles
+    earth.js            — Shared Earth / solar-position utilities (sub-solar longitude, emoji selection)
+    greyline.js         — Grey line card (day/night terminator overlay on Earth emoji)
+    greyline.css        — Grey line-specific styles
     local.js            — Local time card
     utc.js              — UTC card
     beat.js             — Swatch Internet Time card
