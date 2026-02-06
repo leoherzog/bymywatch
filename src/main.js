@@ -2,7 +2,6 @@ import { Temporal } from 'temporal-polyfill';
 import './style.css';
 
 import * as orrery from './cards/orrery.js';
-import * as localTime from './cards/local.js';
 import * as utcTime from './cards/utc.js';
 import * as beatTime from './cards/beat.js';
 import * as calendar from './cards/calendar.js';
@@ -26,7 +25,7 @@ function updateTimeFromNow() {
 updateTimeFromNow();
 
 // --- Cards ---
-const cards = [orrery, calendar, greyLine, localTime, utcTime, beatTime];
+const cards = [orrery, greyLine, calendar, utcTime, beatTime];
 
 // --- DOM references (header controls) ---
 const timeInput = document.getElementById('time');

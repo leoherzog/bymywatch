@@ -28,11 +28,18 @@ const MOON_PHASES = [
   { threshold: 29.53, emoji: '\u{1F311}' },
 ];
 
-let chart, earth, moonEl, planetEls, orbitEls;
+let chart, earth, moonEl, planetEls, orbitEls, dateEl;
 
 export function create() {
   const article = document.createElement('article');
   article.id = 'solarSystem';
+
+  const header = document.createElement('header');
+  dateEl = document.createElement('h2');
+  dateEl.style.marginBottom = '0';
+  dateEl.style.textAlign = 'center';
+  header.appendChild(dateEl);
+  article.appendChild(header);
 
   chart = document.createElement('figure');
   chart.id = 'solarSystemChart';
@@ -77,7 +84,14 @@ export function create() {
   return article;
 }
 
-export function update({ daysSinceEpoch, utcNow }) {
+export function update({ daysSinceEpoch, zonedNow, utcNow }) {
+  dateEl.textContent = zonedNow.toLocaleString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   const chartSize = chart.offsetWidth;
   const baseDistance = chartSize / 5;
 

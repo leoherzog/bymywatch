@@ -33,9 +33,8 @@ src/
     calendar.js         — Monthly calendar grid card
     calendar.css        — Calendar-specific styles
     earth.js            — Shared Earth / solar-position utilities (sub-solar longitude, emoji selection)
-    greyline.js         — Grey line card (day/night terminator overlay on Earth emoji)
+    greyline.js         — Grey line card (day/night terminator overlay on Earth emoji + local time readout)
     greyline.css        — Grey line-specific styles
-    local.js            — Local time card
     utc.js              — UTC card
     beat.js             — Swatch Internet Time card
 ```
@@ -69,8 +68,8 @@ To add a new card: create `src/cards/my-card.js` (and optionally `.css`), export
    `<abbr>` for weekday headers). Uses Temporal's `daysInMonth`, `dayOfWeek`, `dayOfYear`, `weekOfYear`, and `toLocaleString()` for locale-aware display. Rebuilds
    the grid only on month transitions; day changes swap `<mark>` in place.
 
-3. **Time Displays** (`src/cards/local.js`, `src/cards/utc.js`, `src/cards/beat.js`) — Local time, UTC, and Swatch Internet Time (.beat time, BMT
-   = UTC+1, 1000 beats/day).
+3. **Time Displays** (`src/cards/utc.js`, `src/cards/beat.js`) — UTC and Swatch Internet Time (.beat time, BMT
+   = UTC+1, 1000 beats/day). Local time is displayed within the grey line card.
 
 4. **Time Travel Controls** (in `index.html` header, wired in `src/main.js`) — A datetime-local input for manual time selection and a range slider with
    exponential speed control. The slider uses a dead zone (45-55) around center, with exponential acceleration outside it. A "Now" button resets to real-time.

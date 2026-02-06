@@ -3,12 +3,19 @@ import { getSolarDeclination, getSubSolarLongitude, getEarthEmoji, getEmojiCente
 
 const DEG2RAD = Math.PI / 180;
 
-let earthEl, shadowPath, shadowGroup;
+let earthEl, shadowPath, shadowGroup, timeEl;
 let userEmoji, userCenterLon;
 
 export function create() {
   const article = document.createElement('article');
   article.id = 'greyLine';
+
+  const header = document.createElement('header');
+  timeEl = document.createElement('h2');
+  timeEl.style.marginBottom = '0';
+  timeEl.style.textAlign = 'center';
+  header.appendChild(timeEl);
+  article.appendChild(header);
 
   const chart = document.createElement('figure');
   chart.id = 'greyLineChart';
@@ -51,6 +58,7 @@ export function create() {
   chart.appendChild(earthEl);
   chart.appendChild(svg);
   article.appendChild(chart);
+
   return article;
 }
 
@@ -123,4 +131,11 @@ export function update({ zonedNow, utcNow, manuallySpecified }) {
 
   shadowPath.setAttribute('d', d);
   shadowGroup.setAttribute('transform', `rotate(${rotateDeg}, 50, 50)`);
+
+  timeEl.textContent = zonedNow.toLocaleString('en-US', {
+    'hour': 'numeric',
+    'minute': 'numeric',
+    'second': 'numeric',
+    'timeZoneName': 'short',
+  });
 }
