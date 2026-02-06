@@ -1,0 +1,16 @@
+#localDate table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#localDate th,
+#localDate td {
+  width: calc(100% / 7);
+  text-align: center;
+  padding: 0.25rem;
+}
+
+#localDate mark {
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.35rem;
+}
