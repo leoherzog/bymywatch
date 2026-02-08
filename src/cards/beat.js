@@ -1,4 +1,5 @@
 let timeEl, progressEl;
+let lastEpochSeconds = -1;
 
 export function create() {
   const article = document.createElement('article');
@@ -34,7 +35,10 @@ export function create() {
   return article;
 }
 
-export function update({ utcNow }) {
+export function update({ utcNow, epochSeconds }) {
+  if (epochSeconds === lastEpochSeconds) return;
+  lastEpochSeconds = epochSeconds;
+
   const bmtSeconds = (((utcNow.hour + 1) % 24) * 3600) + (utcNow.minute * 60) + utcNow.second;
   const beat = (bmtSeconds / 86.4) % 1000;
   timeEl.textContent = '@' + beat.toFixed(2) + ' .beats';

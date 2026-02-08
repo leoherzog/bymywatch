@@ -29,6 +29,8 @@ const MOON_PHASES = [
 ];
 
 let chart, earth, moonEl, planetEls, orbitEls, dateEl;
+let lastEpochSeconds = -1;
+let cachedChartSize = 0;
 
 export function create() {
   const article = document.createElement('article');
@@ -79,10 +81,19 @@ export function create() {
   }
 
   article.appendChild(chart);
+
+  new ResizeObserver((entries) => {
+    cachedChartSize = entries[0].contentRect.width;
+    lastEpochSeconds = -1;
+  }).observe(chart);
+
   return article;
 }
 
-export function update({ daysSinceEpoch, zonedNow, utcNow }) {
+export function update({ daysSinceEpoch, zonedNow, utcNow, epochSeconds }) {
+  if (epochSeconds === lastEpochSeconds) return;
+  lastEpochSeconds = epochSeconds;
+
   dateEl.textContent = zonedNow.toLocaleString(undefined, {
     weekday: 'long',
     year: 'numeric',
@@ -90,7 +101,7 @@ export function update({ daysSinceEpoch, zonedNow, utcNow }) {
     day: 'numeric',
   });
 
-  const chartSize = chart.offsetWidth;
+  const chartSize = cachedChartSize || chart.offsetWidth;
   const baseDistance = chartSize / 5;
 
   for (const [key, data] of Object.entries(PLANETS)) {
@@ -109,7 +120,7 @@ export function update({ daysSinceEpoch, zonedNow, utcNow }) {
   earth.textContent = getEarthEmoji(getSubSolarLongitude(utcNow));
 
   // Moon phase
-  const currentPhase = (daysSinceEpoch + START_LUNAR_AGE) % MOON_PERIOD;
+  const currentPhase = ((daysSinceEpoch + START_LUNAR_AGE) % MOON_PERIOD + MOON_PERIOD) % MOON_PERIOD;
   let moonEmoji = '\u{1F31B}';
   for (const phase of MOON_PHASES) {
     if (currentPhase < phase.threshold) {

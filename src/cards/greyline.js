@@ -5,6 +5,7 @@ const DEG2RAD = Math.PI / 180;
 
 let earthEl, shadowPath, shadowGroup, timeEl;
 let userEmoji, userCenterLon;
+let lastEpochSeconds = -1;
 
 export function create() {
   const article = document.createElement('article');
@@ -60,7 +61,7 @@ export function create() {
   return article;
 }
 
-export function update({ zonedNow, utcNow, manuallySpecified }) {
+export function update({ zonedNow, utcNow, manuallySpecified, epochSeconds }) {
   // Compute user's local emoji once (approximate longitude from UTC offset)
   if (!userEmoji) {
     const offsetHours = zonedNow.offsetNanoseconds / 3.6e12;
@@ -68,6 +69,9 @@ export function update({ zonedNow, utcNow, manuallySpecified }) {
     userEmoji = getEarthEmoji(userLon);
     userCenterLon = getEmojiCenterLon(userEmoji);
   }
+
+  if (epochSeconds === lastEpochSeconds) return;
+  lastEpochSeconds = epochSeconds;
 
   const dayOfYear = utcNow.dayOfYear;
   const declination = getSolarDeclination(dayOfYear);

@@ -45,6 +45,7 @@ function buildTimeState() {
     zonedNow,
     utcNow,
     daysSinceEpoch: Number(now.since(epoch, { largestUnit: 'hour' }).total('days')),
+    epochSeconds: Math.floor(now.epochMilliseconds / 1000),
     manuallySpecified,
   };
 }

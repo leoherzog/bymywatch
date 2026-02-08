@@ -1,4 +1,5 @@
 let timeEl;
+let lastEpochSeconds = -1;
 
 export function create() {
   const article = document.createElement('article');
@@ -33,7 +34,10 @@ export function create() {
   return article;
 }
 
-export function update({ utcNow }) {
+export function update({ utcNow, epochSeconds }) {
+  if (epochSeconds === lastEpochSeconds) return;
+  lastEpochSeconds = epochSeconds;
+
   timeEl.textContent = utcNow.toLocaleString('en-US', {
     hour: 'numeric',
     minute: 'numeric',
