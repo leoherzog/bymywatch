@@ -1,5 +1,5 @@
 let timeEl, progressEl;
-let lastEpochSeconds = -1;
+let lastBeatCentis = -1;
 
 export function create() {
   const article = document.createElement('article');
@@ -35,12 +35,13 @@ export function create() {
   return article;
 }
 
-export function update({ utcNow, epochSeconds }) {
-  if (epochSeconds === lastEpochSeconds) return;
-  lastEpochSeconds = epochSeconds;
-
-  const bmtSeconds = (((utcNow.hour + 1) % 24) * 3600) + (utcNow.minute * 60) + utcNow.second;
+export function update({ utcNow }) {
+  const bmtSeconds = (((utcNow.hour + 1) % 24) * 3600) + (utcNow.minute * 60) + utcNow.second + (utcNow.millisecond / 1000);
   const beat = (bmtSeconds / 86.4) % 1000;
+  const beatCentis = Math.floor(beat * 100);
+  if (beatCentis === lastBeatCentis) return;
+  lastBeatCentis = beatCentis;
+
   timeEl.textContent = '@' + beat.toFixed(2) + ' .beats';
   progressEl.value = beat;
 }
