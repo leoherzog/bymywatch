@@ -102,15 +102,25 @@ export function update({ zonedNow, utcNow, manuallySpecified, epochSeconds }) {
   // match the real terminator orientation (driven by declination + hour angle).
   //
   // In the un-rotated frame the sun is always to the LEFT, so the dark side is
-  // always to the RIGHT.  Sweep flags are therefore constant.
+  // always to the RIGHT.
 
   const cosH = Math.cos(h);
   const sinH = Math.sin(h);
   const cosDec = Math.cos(declination);
   const sinDec = Math.sin(declination);
 
+  // Cosine of the angle between the sun and the viewing axis.  Positive →
+  // sub-solar point is on the visible hemisphere (mostly lit, dark sliver);
+  // negative → sub-solar point is behind the disk (mostly dark).
+  const sunDot = cosDec * cosH;
+
   // Semi-minor axis of the projected terminator ellipse (semi-major = 50).
-  const rx = 50 * Math.abs(cosDec * cosH);
+  const rx = 50 * Math.abs(sunDot);
+
+  // Mostly lit: arc bulges right (sweep 1), away from the sun, shading less
+  // than half the disk.  Mostly dark: arc bulges left (sweep 0), toward the
+  // sun, shading more than half.
+  const sweep = sunDot >= 0 ? 1 : 0;
 
   // SVG rotation: angle that maps the un-rotated vertical terminator onto the
   // actual terminator direction on the disk.
@@ -121,14 +131,15 @@ export function update({ zonedNow, utcNow, manuallySpecified, epochSeconds }) {
 
   let d;
   if (rx > 49) {
-    // Terminator nearly coincides with the limb → negligible shadow
-    d = '';
+    // Terminator nearly coincides with the limb: the disk is either entirely
+    // lit (sun in front → no shadow) or entirely dark (sun behind → cover it).
+    d = sunDot >= 0 ? '' : 'M -50,-50 H 150 V 150 H -50 Z';
   } else {
-    // Terminator arc (curves left, toward the sun) then straight lines extending
-    // far beyond the clip circle on the dark side (right).  The clip-path on the
-    // parent group provides a crisp limb edge, while the blur filter only softens
-    // the terminator curve — the only edge that falls inside the circle.
-    d = `M 50,0 A ${rx},50 0 0,1 50,100 L 200,100 L 200,0 Z`;
+    // Terminator arc, then straight lines extending far beyond the clip circle
+    // on the dark side (right).  The clip-path on the parent group provides a
+    // crisp limb edge, while the blur filter only softens the terminator
+    // curve — the only edge that falls inside the circle.
+    d = `M 50,0 A ${rx},50 0 0,${sweep} 50,100 L 200,100 L 200,0 Z`;
   }
 
   shadowPath.setAttribute('d', d);

@@ -6,14 +6,15 @@ const PLANETS = {
   venus: { period: 224.70080, startAngle: 166.59, distanceMultiplier: 0.75, tooltip: 'Venus', symbol: '\u2640' },
   us: { period: 365.25636, startAngle: 0, distanceMultiplier: 1 },
   mars: { period: 686.97125, startAngle: 279.92, distanceMultiplier: 1.25, tooltip: 'Mars', symbol: '\u2642' },
-  jupiter: { period: 4332.5906, startAngle: 104.12, distanceMultiplier: 1.5, tooltip: 'Jupiter', symbol: '\u2643' },
+  jupiter: { period: 4332.5906, startAngle: 102.55, distanceMultiplier: 1.5, tooltip: 'Jupiter', symbol: '\u2643' },
   saturn: { period: 10759.2225, startAngle: 297.57, distanceMultiplier: 1.75, tooltip: 'Saturn', symbol: '\u2644' },
   uranus: { period: 30688.4546, startAngle: 85.48, distanceMultiplier: 2, tooltip: 'Uranus', symbol: '\u2645' },
   neptune: { period: 60181.5878, startAngle: 138.52, distanceMultiplier: 2.25, tooltip: 'Neptune', symbol: '\u2646' },
 };
 
 const MOON_PERIOD = 29.5305;
-const START_LUNAR_AGE = 15.66;
+// Moon age (days) at the 1970-01-01 epoch; nearest new moon was 1970-01-07 20:45 UTC
+const START_LUNAR_AGE = 22.67;
 const MOON_ORBIT_RADIUS = 20;
 
 const MOON_PHASES = [
@@ -121,7 +122,7 @@ export function update({ daysSinceEpoch, zonedNow, utcNow, epochSeconds }) {
 
   // Moon phase
   const currentPhase = ((daysSinceEpoch + START_LUNAR_AGE) % MOON_PERIOD + MOON_PERIOD) % MOON_PERIOD;
-  let moonEmoji = '\u{1F31B}';
+  let moonEmoji = '\u{1F311}';
   for (const phase of MOON_PHASES) {
     if (currentPhase < phase.threshold) {
       moonEmoji = phase.emoji;
