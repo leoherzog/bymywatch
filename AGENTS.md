@@ -8,13 +8,11 @@ This project exists to learn and exercise the **Temporal API**. Never use `Date`
 
 ## Project Overview
 
-**By My Watch** is a single-page web app that visualizes time in multiple formats alongside an interactive orrery (solar system model). It was built as a
-learning exercise for the JavaScript Temporal API.
+**By My Watch** is a single-page web app that visualizes time in multiple formats alongside an interactive orrery (solar system model). It was built as a learning exercise for the JavaScript Temporal API.
 
 ## Architecture
 
-A **Vite** vanilla JS project. Each time-display card is a separate ES module in `src/cards/`. There are no frameworks — just plain JavaScript, CSS, and a
-bundler.
+A **Vite** vanilla JS project. Each time-display card is a separate ES module in `src/cards/`. There are no frameworks — just plain JavaScript, CSS, and a bundler.
 
 ### File Structure
 
@@ -55,29 +53,19 @@ Every card in `src/cards/` exports two functions:
 
 The `timeState` object: `{ now, zonedNow, utcNow, daysSinceEpoch }`
 
-To add a new card: create `src/cards/my-card.js` (and optionally `.css`), export `create()` and `update()`, then import and add it to the `cards` array in
-`src/main.js`.
+To add a new card: create `src/cards/my-card.js` (and optionally `.css`), export `create()` and `update()`, then import and add it to the `cards` array in `src/main.js`.
 
 ### Core Components
 
-1. **Orrery / Solar System Chart** (`src/cards/orrery.js`) — CSS-based circular visualization with 8 planets, Sun, Earth, and Moon. Planets positioned using CSS
-   `rotate()`/`translateX()` transforms from real orbital periods. Planet data is a module-level constant. Moon phase tracking uses a 29.5305-day lunar cycle
-   with 8 emoji phases. Earth's globe emoji rotates by UTC hour.
+1. **Orrery / Solar System Chart** (`src/cards/orrery.js`) — CSS-based circular visualization with 8 planets, Sun, Earth, and Moon. Planets positioned using CSS `rotate()`/`translateX()` transforms from real orbital periods. Planet data is a module-level constant. Moon phase tracking uses a 29.5305-day lunar cycle with 8 emoji phases. Earth's globe emoji rotates by UTC hour.
 
-2. **Gregorian Calendar** (`src/cards/gregorian.js`) — Toggleable month/year calendar view. Clicking the header switches between a single-month view (short weekday
-   headers, wider spacing) and a full 12-month year grid (narrow weekday headers, 3-column CSS Grid layout with responsive breakpoints). Uses semantic Pico CSS
-   elements (`<mark>` for today, `<time>` for each day, `<abbr>` for weekday headers, `<section>` per month in year view). Weekday ordering is locale-aware via
-   `Intl.Locale.getWeekInfo()`. Both views update every frame; the year view rebuilds only on year change, swaps `<mark>` for day/month changes. The month view
-   rebuilds on month transitions and swaps `<mark>` for day changes.
+2. **Gregorian Calendar** (`src/cards/gregorian.js`) — Toggleable month/year calendar view. Clicking the header switches between a single-month view (short weekday headers, wider spacing) and a full 12-month year grid (narrow weekday headers, 3-column CSS Grid layout with responsive breakpoints). Uses semantic Pico CSS elements (`<mark>` for today, `<time>` for each day, `<abbr>` for weekday headers, `<section>` per month in year view). Weekday ordering is locale-aware via `Intl.Locale.getWeekInfo()`. Both views update every frame; the year view rebuilds only on year change, swaps `<mark>` for day/month changes. The month view rebuilds on month transitions and swaps `<mark>` for day changes.
 
-3. **Time Displays** (`src/cards/utc.js`, `src/cards/beat.js`) — UTC and Swatch Internet Time (.beat time, BMT
-   = UTC+1, 1000 beats/day). Local time is displayed within the grey line card.
+3. **Time Displays** (`src/cards/utc.js`, `src/cards/beat.js`) — UTC and Swatch Internet Time (.beat time, BMT = UTC+1, 1000 beats/day). Local time is displayed within the grey line card.
 
-4. **Time Travel Controls** (in `index.html` header, wired in `src/main.js`) — A datetime-local input for manual time selection and a range slider with
-   exponential speed control. The slider uses a dead zone (45-55) around center, with exponential acceleration outside it. A "Now" button resets to real-time.
+4. **Time Travel Controls** (in `index.html` header, wired in `src/main.js`) — A datetime-local input for manual time selection and a range slider with exponential speed control. The slider uses a dead zone (45-55) around center, with exponential acceleration outside it. A "Now" button resets to real-time.
 
-5. **Animation Loop** (`src/main.js`) — `requestAnimationFrame`-based with delta-time calculation. The `tick()` function updates time state, then calls
-   `update()` on every card.
+5. **Animation Loop** (`src/main.js`) — `requestAnimationFrame`-based with delta-time calculation. The `tick()` function updates time state, then calls `update()` on every card.
 
 ### Key State Variables (in `src/main.js`)
 
@@ -88,8 +76,7 @@ To add a new card: create `src/cards/my-card.js` (and optionally `.css`), export
 
 ### Astronomical Data
 
-Planet data is defined as a module-level constant in `src/cards/orrery.js` with properties: `period` (orbital period in days), `startAngle` (degrees at epoch),
-`distanceMultiplier` (chart spacing). Orbital periods use high-precision values (e.g., Mercury: 87.96935 days).
+Planet data is defined as a module-level constant in `src/cards/orrery.js` with properties: `period` (orbital period in days), `startAngle` (degrees at epoch), `distanceMultiplier` (chart spacing). Orbital periods use high-precision values (e.g., Mercury: 87.96935 days).
 
 ## Development
 

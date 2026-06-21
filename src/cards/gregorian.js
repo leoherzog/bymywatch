@@ -1,10 +1,16 @@
 import { Temporal } from 'temporal-polyfill';
 import './gregorian.css';
 
-// Locale-aware first day of week (1=Mon..7=Sun, same as Temporal dayOfWeek)
-const locale = new Intl.Locale(navigator.language);
+// Use the locale the runtime actually resolved to for formatting, so weekday
+// names and week info stay consistent with each other.
+const locale = new Intl.Locale(new Intl.DateTimeFormat().resolvedOptions().locale);
 const weekInfo = locale.getWeekInfo?.() ?? locale.weekInfo;
 const FIRST_DAY = weekInfo?.firstDay ?? 7;
+const WEEKEND = new Set(weekInfo?.weekend ?? [6, 7]); // dayOfWeek values (1=Mon..7=Sun)
+
+// Map a column index (0 = first day of the locale's week) to a Temporal dayOfWeek.
+const dowForColumn = (col) => ((FIRST_DAY - 1 + col) % 7) + 1;
+const isWeekendColumn = (col) => WEEKEND.has(dowForColumn(col));
 
 // Build locale-aware weekday headers starting from the locale's first day.
 // 1970-01-04 is a Sunday (Temporal dayOfWeek 7); offset to reach FIRST_DAY.
@@ -14,6 +20,7 @@ const DAY_ABBRS = Array.from({ length: 7 }, (_, i) => {
     narrow: date.toLocaleString(undefined, { weekday: 'narrow' }),
     short: date.toLocaleString(undefined, { weekday: 'short' }),
     full: date.toLocaleString(undefined, { weekday: 'long' }),
+    weekend: isWeekendColumn(i),
   };
 });
 
@@ -36,6 +43,7 @@ function buildWeekdayHeader(format) {
   for (const day of DAY_ABBRS) {
     const th = document.createElement('th');
     th.scope = 'col';
+    if (day.weekend) th.classList.add('weekend');
     const abbrEl = document.createElement('abbr');
     abbrEl.title = day.full;
     abbrEl.textContent = day[key];
@@ -141,11 +149,14 @@ function buildMonthGrid(year, month, today) {
   let row = document.createElement('tr');
 
   for (let i = 0; i < startDow; i++) {
-    row.appendChild(document.createElement('td'));
+    const cell = document.createElement('td');
+    if (isWeekendColumn(i)) cell.classList.add('weekend');
+    row.appendChild(cell);
   }
 
   for (let d = 1; d <= daysInMonth; d++) {
     const cell = document.createElement('td');
+    if (isWeekendColumn((startDow + d - 1) % 7)) cell.classList.add('weekend');
     const time = document.createElement('time');
     time.dateTime = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     time.textContent = d;
@@ -169,7 +180,9 @@ function buildMonthGrid(year, month, today) {
   const remaining = (startDow + daysInMonth) % 7;
   if (remaining !== 0) {
     for (let i = remaining; i < 7; i++) {
-      row.appendChild(document.createElement('td'));
+      const cell = document.createElement('td');
+      if (isWeekendColumn(i)) cell.classList.add('weekend');
+      row.appendChild(cell);
     }
     monthTbody.appendChild(row);
   }
@@ -190,13 +203,16 @@ function buildAllYearGrids(year, todayMonth, todayDay) {
     let row = document.createElement('tr');
 
     for (let i = 0; i < startDow; i++) {
-      row.appendChild(document.createElement('td'));
+      const cell = document.createElement('td');
+      if (isWeekendColumn(i)) cell.classList.add('weekend');
+      row.appendChild(cell);
     }
 
     const isCurrentMonth = (m === todayMonth);
 
     for (let d = 1; d <= daysInMonth; d++) {
       const cell = document.createElement('td');
+      if (isWeekendColumn((startDow + d - 1) % 7)) cell.classList.add('weekend');
       const time = document.createElement('time');
       time.dateTime = `${year}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       time.textContent = d;
@@ -220,7 +236,9 @@ function buildAllYearGrids(year, todayMonth, todayDay) {
     const remaining = (startDow + daysInMonth) % 7;
     if (remaining !== 0) {
       for (let i = remaining; i < 7; i++) {
-        row.appendChild(document.createElement('td'));
+        const cell = document.createElement('td');
+        if (isWeekendColumn(i)) cell.classList.add('weekend');
+        row.appendChild(cell);
       }
       tbody.appendChild(row);
     }

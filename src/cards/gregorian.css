@@ -52,6 +52,16 @@
   opacity: 0.6;
 }
 
+/* --- Weekend columns (locale-aware via Intl weekInfo.weekend) --- */
+#localDate th.weekend abbr,
+#localDate td.weekend time {
+  color: var(--pico-primary);
+}
+
+#localDate td.weekend {
+  background: color-mix(in srgb, var(--pico-primary) 6%, transparent);
+}
+
 /* --- Today highlight --- */
 #localDate mark {
   border-radius: 0.25rem;
