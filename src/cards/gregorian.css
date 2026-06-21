@@ -9,11 +9,6 @@
 }
 
 /* --- Month view (single month, wider spacing) --- */
-#localDate .month-view table {
-  margin-left: auto;
-  margin-right: auto;
-}
-
 #localDate .month-view th,
 #localDate .month-view td {
   width: calc(100% / 7);
@@ -36,7 +31,6 @@
 
 #localDate .year-view table {
   margin: 0;
-  width: 100%;
 }
 
 #localDate .year-view th,

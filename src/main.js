@@ -1,11 +1,7 @@
 import { Temporal } from 'temporal-polyfill';
 import './style.css';
 
-import * as orrery from './cards/orrery.js';
-import * as utcTime from './cards/utc.js';
-import * as beatTime from './cards/beat.js';
-import * as gregorian from './cards/gregorian.js';
-import * as greyLine from './cards/greyline.js';
+import { cards } from './cards/index.js';
 
 // --- Time state ---
 const localTimeZone = Temporal.Now.timeZoneId();
@@ -16,16 +12,17 @@ let manuallySpecified = false;
 let timeMultiplier = 0;
 let lastFrameTime = performance.now();
 
-function updateTimeFromNow() {
-  now = Temporal.Now.instant();
+function deriveZoned() {
   zonedNow = now.toZonedDateTimeISO(localTimeZone);
   utcNow = now.toZonedDateTimeISO('UTC');
 }
 
-updateTimeFromNow();
+function updateTimeFromNow() {
+  now = Temporal.Now.instant();
+  deriveZoned();
+}
 
-// --- Cards ---
-const cards = [orrery, greyLine, gregorian, utcTime, beatTime];
+updateTimeFromNow();
 
 // --- DOM references (header controls) ---
 const timeInput = document.getElementById('time');
@@ -33,9 +30,53 @@ const timeTravel = document.getElementById('timetravel');
 const timeTravelContainer = document.getElementById('timetravel-container');
 const container = document.getElementById('card-container');
 
-// --- Initialize cards ---
+// --- Layout: two columns. The orrery (Earth's revolution around the Sun ->
+// dates) anchors the Date column; the grey line (Earth's rotation -> times)
+// anchors the Time column. Each column packs the rest of its cards into a grid. ---
+const COLUMNS = [
+  { anchorId: 'solarSystem', categories: ['calendars'] },
+  { anchorId: 'greyLine', categories: ['standard', 'timescales'] },
+];
+
+// --- Initialize cards into their columns ---
+const placed = new Set();
+
+function mountCard(card, grid, isAnchor) {
+  const el = card.create();
+  if (isAnchor) el.classList.add('anchor');
+  if (isAnchor || card.meta.fullWidth) el.classList.add('full-span');
+  grid.appendChild(el);
+  placed.add(card.meta.id);
+}
+
+// Categories claimed by a column, plus 'solar' (the anchors). Anything else
+// falls through to the safety net below and is dev-warned.
+const KNOWN = new Set(COLUMNS.flatMap((c) => c.categories).concat(['solar']));
+
+for (const col of COLUMNS) {
+  const grid = document.createElement('div');
+  grid.className = 'card-grid';
+  container.appendChild(grid);
+
+  // Anchor (orrery / grey line) leads the column at full width.
+  const anchor = cards.find((c) => c.meta.id === col.anchorId);
+  if (anchor) mountCard(anchor, grid, true);
+
+  // Then this column's categories, in global meta.order (cards is pre-sorted).
+  for (const card of cards) {
+    if (placed.has(card.meta.id)) continue;
+    if (col.categories.includes(card.meta.category)) mountCard(card, grid, false);
+  }
+}
+
+// Safety net: any card not claimed by a column lands in the last grid.
+const lastGrid = container.querySelector('.card-grid:last-child');
 for (const card of cards) {
-  container.appendChild(card.create());
+  if (placed.has(card.meta.id)) continue;
+  if (import.meta.env?.DEV && !KNOWN.has(card.meta.category)) {
+    console.warn(`[card] ${card.meta.id} has unmapped category "${card.meta.category}"; using safety net`);
+  }
+  mountCard(card, lastGrid, false);
 }
 
 // --- Build timeState ---
@@ -71,8 +112,7 @@ function tick(msSincePageLoad) {
 
       const adjustment = Math.round(timeMultiplier * deltaTime * 1000 * 3600);
       now = now.add({ milliseconds: adjustment });
-      zonedNow = now.toZonedDateTimeISO(localTimeZone);
-      utcNow = now.toZonedDateTimeISO('UTC');
+      deriveZoned();
 
       timeInput.value = zonedNow.toPlainDateTime().toString().slice(0, 19);
     }
@@ -80,7 +120,11 @@ function tick(msSincePageLoad) {
 
   const timeState = buildTimeState();
   for (const card of cards) {
-    card.update(timeState);
+    try {
+      card.update(timeState);
+    } catch (err) {
+      if (import.meta.env?.DEV) console.warn(`[card] ${card.meta.id} update failed`, err);
+    }
   }
 }
 
@@ -99,8 +143,7 @@ function onManuallySpecifiedTime() {
 
   manuallySpecified = true;
   now = plainDateTime.toZonedDateTime(localTimeZone).toInstant();
-  zonedNow = now.toZonedDateTimeISO(localTimeZone);
-  utcNow = now.toZonedDateTimeISO('UTC');
+  deriveZoned();
   tick(performance.now());
 }
 

@@ -11,8 +11,7 @@ const EARTH_EMOJIS = [
 
 /** Smallest signed angle between two longitudes, in degrees [-180, 180]. */
 function angleDist(a, b) {
-  let d = ((b - a + 540) % 360) - 180;
-  return d;
+  return ((b - a + 540) % 360) - 180;
 }
 
 /**

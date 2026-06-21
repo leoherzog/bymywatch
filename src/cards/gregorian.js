@@ -1,6 +1,8 @@
 import { Temporal } from 'temporal-polyfill';
 import './gregorian.css';
 
+const meta = { id: 'localDate', title: 'Gregorian Calendar', category: 'calendars', wikipedia: 'https://en.wikipedia.org/wiki/Gregorian_calendar', order: 30, fullWidth: true };
+
 // Use the locale the runtime actually resolved to for formatting, so weekday
 // names and week info stay consistent with each other.
 const locale = new Intl.Locale(new Intl.DateTimeFormat().resolvedOptions().locale);
@@ -53,13 +55,13 @@ function buildWeekdayHeader(format) {
   return headRow;
 }
 
-export function create() {
+function create() {
   const article = document.createElement('article');
-  article.id = 'localDate';
+  article.id = meta.id;
 
   // Header (click target for toggle)
   const header = document.createElement('header');
-  const headerLabel = document.createTextNode('Gregorian Calendar ');
+  const headerLabel = document.createTextNode(meta.title + ' ');
   const toggleIndicator = document.createElement('span');
   toggleIndicator.className = 'toggle-indicator';
   toggleIndicator.textContent = '\u25b6';
@@ -264,7 +266,7 @@ function swapMark(tbody, newDay) {
   }
 }
 
-export function update({ zonedNow }) {
+function update({ zonedNow }) {
   const year = zonedNow.year;
   const month = zonedNow.month;
   const day = zonedNow.day;
@@ -307,3 +309,5 @@ export function update({ zonedNow }) {
   lastMonth = month;
   lastDay = day;
 }
+
+export const cards = [{ meta, create, update }];

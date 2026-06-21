@@ -1,5 +1,7 @@
 import './orrery.css';
-import { getSubSolarLongitude, getEarthEmoji } from './earth.js';
+import { getSubSolarLongitude, getEarthEmoji } from './lib/earth.js';
+
+const meta = { id: 'solarSystem', title: 'Solar System', category: 'solar', wikipedia: 'https://en.wikipedia.org/wiki/Orrery', order: 10 };
 
 const PLANETS = {
   mercury: { period: 87.96935, startAngle: 296.20, distanceMultiplier: 0.5, tooltip: 'Mercury', symbol: '\u263F' },
@@ -17,6 +19,8 @@ const MOON_PERIOD = 29.5305;
 const START_LUNAR_AGE = 22.67;
 const MOON_ORBIT_RADIUS = 20;
 
+const DATE_FORMAT = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
 const MOON_PHASES = [
   { threshold: 1.84566, emoji: '\u{1F311}' },
   { threshold: 5.53699, emoji: '\u{1F312}' },
@@ -33,13 +37,17 @@ let chart, earth, moonEl, planetEls, orbitEls, dateEl;
 let lastEpochSeconds = -1;
 let cachedChartSize = 0;
 
-export function create() {
+function create() {
   const article = document.createElement('article');
-  article.id = 'solarSystem';
+  article.id = meta.id;
 
   const header = document.createElement('header');
+  const hgroup = document.createElement('hgroup');
   dateEl = document.createElement('h2');
-  header.appendChild(dateEl);
+  const caption = document.createElement('p');
+  caption.textContent = 'Earth’s Orbit';
+  hgroup.append(dateEl, caption);
+  header.appendChild(hgroup);
   article.appendChild(header);
 
   chart = document.createElement('figure');
@@ -91,16 +99,11 @@ export function create() {
   return article;
 }
 
-export function update({ daysSinceEpoch, zonedNow, utcNow, epochSeconds }) {
+function update({ daysSinceEpoch, zonedNow, utcNow, epochSeconds }) {
   if (epochSeconds === lastEpochSeconds) return;
   lastEpochSeconds = epochSeconds;
 
-  dateEl.textContent = zonedNow.toLocaleString(undefined, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  dateEl.textContent = zonedNow.toLocaleString(undefined, DATE_FORMAT);
 
   const chartSize = cachedChartSize || chart.offsetWidth;
   const baseDistance = chartSize / 5;
@@ -135,3 +138,5 @@ export function update({ daysSinceEpoch, zonedNow, utcNow, epochSeconds }) {
   const moonPhaseAngle = (currentPhase / MOON_PERIOD) * 360;
   moonEl.style.transform = `rotate(${-moonPhaseAngle}deg) translate(${MOON_ORBIT_RADIUS}px)`;
 }
+
+export const cards = [{ meta, create, update }];

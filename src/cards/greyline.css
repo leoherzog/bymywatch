@@ -1,21 +1,14 @@
-#greyLine header h2 {
-  margin-bottom: 0;
-  text-align: center;
-}
-
+/* Shared anchor header + circular figure sizing live in style.css (.anchor).
+   Card-specific bits only below. */
 #greyLineChart {
-  width: 100%;
-  max-width: 500px;
-  max-height: 500px;
-  aspect-ratio: 1 / 1;
-  margin: 0 auto;
-  position: relative;
-  border-radius: 50%;
   overflow: hidden;
+  container-type: size;
 }
 
 .grey-line-earth {
-  font-size: 500px;
+  /* Scale the globe emoji to the (responsive) chart instead of a fixed 500px,
+     so it is never larger than its circular container and clipped. */
+  font-size: 100cqmin;
   line-height: 1;
   display: block;
   text-align: center;

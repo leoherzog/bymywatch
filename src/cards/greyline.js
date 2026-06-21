@@ -1,19 +1,27 @@
 import './greyline.css';
-import { getSolarDeclination, getSubSolarLongitude, getEarthEmoji, getEmojiCenterLon } from './earth.js';
+import { getSolarDeclination, getSubSolarLongitude, getEarthEmoji, getEmojiCenterLon } from './lib/earth.js';
+
+const meta = { id: 'greyLine', title: 'Grey Line', category: 'solar', wikipedia: 'https://en.wikipedia.org/wiki/Grey_line_(radio_propagation)', order: 20 };
 
 const DEG2RAD = Math.PI / 180;
+
+const TIME_FORMAT = { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' };
 
 let earthEl, shadowPath, shadowGroup, timeEl;
 let userEmoji, userCenterLon;
 let lastEpochSeconds = -1;
 
-export function create() {
+function create() {
   const article = document.createElement('article');
-  article.id = 'greyLine';
+  article.id = meta.id;
 
   const header = document.createElement('header');
+  const hgroup = document.createElement('hgroup');
   timeEl = document.createElement('h2');
-  header.appendChild(timeEl);
+  const caption = document.createElement('p');
+  caption.textContent = 'Earth’s Rotation';
+  hgroup.append(timeEl, caption);
+  header.appendChild(hgroup);
   article.appendChild(header);
 
   const chart = document.createElement('figure');
@@ -61,7 +69,7 @@ export function create() {
   return article;
 }
 
-export function update({ zonedNow, utcNow, manuallySpecified, epochSeconds }) {
+function update({ zonedNow, utcNow, manuallySpecified, epochSeconds }) {
   // Compute user's local emoji once (approximate longitude from UTC offset)
   if (!userEmoji) {
     const offsetHours = zonedNow.offsetNanoseconds / 3.6e12;
@@ -145,10 +153,7 @@ export function update({ zonedNow, utcNow, manuallySpecified, epochSeconds }) {
   shadowPath.setAttribute('d', d);
   shadowGroup.setAttribute('transform', `rotate(${rotateDeg}, 50, 50)`);
 
-  timeEl.textContent = zonedNow.toLocaleString('en-US', {
-    'hour': 'numeric',
-    'minute': 'numeric',
-    'second': 'numeric',
-    'timeZoneName': 'short',
-  });
+  timeEl.textContent = zonedNow.toLocaleString('en-US', TIME_FORMAT);
 }
+
+export const cards = [{ meta, create, update }];

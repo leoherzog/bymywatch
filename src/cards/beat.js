@@ -1,47 +1,42 @@
-let timeEl, progressEl;
+import { simpleCard } from './lib/simpleCard.js';
+
+const footnote = document.createDocumentFragment();
+const beatLabel = document.createElement('strong');
+beatLabel.textContent = '.beat';
+footnote.append('Also known as ', beatLabel, ' time.');
+
+const meta = {
+  id: 'beat',
+  title: 'Swatch Internet Time',
+  category: 'standard',
+  wikipedia: 'https://en.wikipedia.org/wiki/Swatch_Internet_Time',
+  order: 50,
+  footnote,
+};
+
+let card, progressEl;
 let lastBeatCentis = -1;
 
-export function create() {
-  const article = document.createElement('article');
-  article.id = 'beat';
-
-  const header = document.createElement('header');
-  const link = document.createElement('a');
-  link.href = 'https://en.wikipedia.org/wiki/Swatch_Internet_Time';
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.textContent = 'Swatch Internet Time';
-  header.appendChild(link);
-  article.appendChild(header);
-
-  timeEl = document.createElement('h2');
-  timeEl.id = 'beatTime';
-  article.appendChild(timeEl);
+function create() {
+  card = simpleCard(meta);
 
   progressEl = document.createElement('progress');
   progressEl.id = 'beatTimeTimeline';
   progressEl.max = 1000;
-  article.appendChild(progressEl);
+  card.article.insertBefore(progressEl, card.footer);
 
-  const footer = document.createElement('footer');
-  const small = document.createElement('small');
-  small.append('Also known as ');
-  const strong = document.createElement('strong');
-  strong.textContent = '.beat';
-  small.append(strong, ' time.');
-  footer.appendChild(small);
-  article.appendChild(footer);
-
-  return article;
+  return card.article;
 }
 
-export function update({ utcNow }) {
+function update({ utcNow }) {
   const bmtSeconds = (((utcNow.hour + 1) % 24) * 3600) + (utcNow.minute * 60) + utcNow.second + (utcNow.millisecond / 1000);
   const beat = (bmtSeconds / 86.4) % 1000;
   const beatCentis = Math.floor(beat * 100);
   if (beatCentis === lastBeatCentis) return;
   lastBeatCentis = beatCentis;
 
-  timeEl.textContent = '@' + beat.toFixed(2) + ' .beats';
+  card.setValue('@' + beat.toFixed(2) + ' .beats');
   progressEl.value = beat;
 }
+
+export const cards = [{ meta, create, update }];

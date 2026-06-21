@@ -1,47 +1,23 @@
-let timeEl;
-let lastEpochSeconds = -1;
+import { timescaleCard } from './lib/timescaleCard.js';
 
-export function create() {
-  const article = document.createElement('article');
-  article.id = 'utc';
+const footnote = document.createDocumentFragment();
+const gmtLink = document.createElement('a');
+gmtLink.target = '_blank';
+gmtLink.rel = 'noopener noreferrer';
+gmtLink.href = 'https://en.wikipedia.org/wiki/Greenwich_Mean_Time';
+gmtLink.textContent = 'GMT';
+footnote.append('Which is actually a different thing than Greenwich Mean Time (', gmtLink, ')!');
 
-  const header = document.createElement('header');
-  header.append('Universal Coordinated Time (');
-  const utcLink = document.createElement('a');
-  utcLink.href = 'https://en.wikipedia.org/wiki/Coordinated_Universal_Time';
-  utcLink.target = '_blank';
-  utcLink.rel = 'noopener noreferrer';
-  utcLink.textContent = 'UTC';
-  header.append(utcLink, ')');
-  article.appendChild(header);
+const TIME_FORMAT = { hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' };
 
-  timeEl = document.createElement('h2');
-  timeEl.id = 'utcTime';
-  article.appendChild(timeEl);
-
-  const footer = document.createElement('footer');
-  const small = document.createElement('small');
-  small.append('Which is actually a different thing than Greenwich Mean Time (');
-  const gmtLink = document.createElement('a');
-  gmtLink.href = 'https://en.wikipedia.org/wiki/Greenwich_Mean_Time';
-  gmtLink.target = '_blank';
-  gmtLink.rel = 'noopener noreferrer';
-  gmtLink.textContent = 'GMT';
-  small.append(gmtLink, ')!');
-  footer.appendChild(small);
-  article.appendChild(footer);
-
-  return article;
-}
-
-export function update({ utcNow, epochSeconds }) {
-  if (epochSeconds === lastEpochSeconds) return;
-  lastEpochSeconds = epochSeconds;
-
-  timeEl.textContent = utcNow.toLocaleString('en-US', {
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    timeZoneName: 'short',
-  });
-}
+export const cards = [
+  timescaleCard({
+    id: 'utc',
+    title: 'Coordinated Universal Time (UTC)',
+    category: 'standard',
+    wikipedia: 'https://en.wikipedia.org/wiki/Coordinated_Universal_Time',
+    order: 40,
+    footnote,
+    compute: ({ utcNow }) => utcNow.toLocaleString('en-US', TIME_FORMAT),
+  }),
+];
