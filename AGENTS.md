@@ -18,8 +18,7 @@ A **Vite** vanilla JS project. Each time-display card is a separate ES module in
 
 ```
 index.html              — Shell: PicoCSS CDN, header controls, empty <main>, Cloudflare beacon
-package.json            — Dependencies (read by Deno)
-deno.json               — Deno configuration
+package.json            — Dependencies and npm scripts
 public/
   robots.txt
 src/
@@ -137,8 +136,8 @@ Planet data is defined as a module-level constant in `src/cards/orrery.js` with 
 ## Development
 
 ```bash
-deno install         # install dependencies
-deno task dev        # start Vite dev server
-deno task build      # production build to dist/
-deno task preview    # preview production build
+npm install          # install dependencies
+npm run dev          # start Vite dev server
+npm run build        # production build to dist/
+npm run preview      # preview production build
 ```
